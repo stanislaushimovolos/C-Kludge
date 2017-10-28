@@ -109,7 +109,6 @@ public:
 	int calcHash () {
 
 #ifndef RELEASE
-		std::cout << "HASHING\n";
 		int _hash = 0;
 
 		for (size_t i = sizeof (int); i < rawSize - sizeof (int); i++) {
@@ -173,19 +172,19 @@ public:
 
 	void dump () {
 
-		fprintf (stderr, "Type of stack is %21s\n", typeName);
-		fprintf (stderr, "Max size of stack is %17d\n", maxSize);
-		fprintf (stderr, "Size of stack is %21d\n", size);
-		fprintf (stderr, "Stack hash is:%24d\n", calcHash ());
-		fprintf (stderr, "Stack elemetns:\n");
+		fprintf (stdout, "Type of stack is %21s\n", typeName);
+		fprintf (stdout, "Max size of stack is %17d\n", maxSize);
+		fprintf (stdout, "Size of stack is %21d\n", size);
+		fprintf (stdout, "Stack hash is:%24d\n", calcHash ());
+		fprintf (stdout, "Stack elemetns:\n");
 
 		if (typeFormat == "%s" && typeName != "char*") {
 			fprintf (stderr, "Wrong input of format\n");
 		} else {
 			for (int i = 0; i < size; i++) {
-				fprintf (stderr, "%6d ", i);
-				fprintf (stderr, typeFormat, data[i]);
-				fprintf (stderr, "\n");
+				fprintf (stdout, "%6d ", i);
+				fprintf (stdout, typeFormat, data[i]);
+				fprintf (stdout, "\n");
 			}
 		}
 	}
@@ -223,6 +222,18 @@ public:
 			return 1;
 
 		value = data[size];
+	}
+
+	bool pop () {
+
+		if (OK (POP_ERROR, size > 0))
+			return 1;
+
+		size--;
+		hash = calcHash ();
+
+		if (OK (POP_ERROR, 1))
+			return 1;
 	}
 
 	~Stack () {
