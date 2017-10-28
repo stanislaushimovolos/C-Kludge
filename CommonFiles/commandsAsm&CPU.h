@@ -26,9 +26,13 @@ enum {
 	CMD_outRam,
 	CMD_jmp,
 	CMD_je,
+	CMD_jne,
+	CMD_jb,
+	CMD_jl,
 	CMD_ret,
 	CMD_in,
-	CMD_ERR
+	CMD_ERR,
+	CMD_call
 
 };
 
@@ -209,7 +213,10 @@ DEF_CMD (pop, CMD_pop, {                                                        
 		funcIntHelper = 0;                                                                                  \
 		continue;                                                                                           \
 	}                                                                                                       \
-	}, {pop(); counter++; continue;})
+	}, {pop(); counter++; continue;})                                                                       \
+
+
+
 
 #define SMPL_INSTR(name) {                                                                                  \
 	if(1){                                                                                                  \
@@ -290,8 +297,6 @@ DEF_CMD (out, CMD_out, SMPL_INSTR(out),  {
 }
 )
 
-DEF_CMD (ret, CMD_ret, SMPL_INSTR(ret),  {})
-
 DEF_CMD (in, CMD_in, SMPL_INSTR(in),  {
 
 	double value = 0;
@@ -304,9 +309,30 @@ DEF_CMD (in, CMD_in, SMPL_INSTR(in),  {
 	continue;
 })
 
-#undef SMPL_INSTR
 
-#define DEF_CMD_JMP_INSTR(name, codeCpu)                                                                    \
+#define JMP_CODE counter = CPU->commands[counter + 1]
+
+DEF_CMD (jmp, CMD_jmp,{
+	if (LABEL_CONDITION)
+	{
+		NEXT_ELEM_CODE = CMD_jmp;
+		NEXT_ELEM_CODE = (double)(_labelArr[funcIntHelper]);
+
+		continue;
+	}
+	else{
+		funcIntHelper = 0;
+		printf("WRONG INPUT");
+		exit(EXIT_FAILURE);
+		continue;
+	}
+}, {
+	JMP_CODE;
+	continue;
+}
+)
+
+#define DEF_CMD_JMP_INSTR(name, condition)                                                                  \
 DEF_CMD (name, CMD_##name, {                                                                                \
 	if (LABEL_CONDITION)	                                    											\
 	{                                                                                                       \
@@ -321,21 +347,73 @@ DEF_CMD (name, CMD_##name, {                                                    
 		exit(EXIT_FAILURE);                                                                                 \
 		continue;                                                                                           \
 	}                                                                                                       \
-}, codeCpu)
+},                                                                                                          \
+{                                                                                                           \
+																											\
+	double value1 = 0;                                                                                      \
+	double value2 = 0;                                                                                      \
+																											\
+	pop(value1);                                                                                            \
+	pop(value2);                                                                                            \
+																											\
+	if (condition) {                                                                                        \
+		JMP_CODE;                                                                                           \
+		push(value2);                                                                                       \
+		push(value1);                                                                                       \
+		continue;                                                                                           \
+	}                                                                                                       \
+	counter += 2;                                                                                           \
+	push(value2);                                                                                           \
+	push(value1);                                                                                           \
+	continue;                                                                                               \
+}                                                                                                           \
+)
 
-DEF_CMD_JMP_INSTR (jmp, {})
+DEF_CMD_JMP_INSTR(je, value1 == value2 )
 
-DEF_CMD_JMP_INSTR (je, {})
+DEF_CMD_JMP_INSTR(jne, value1 != value2 )
+
+DEF_CMD_JMP_INSTR(jb, value1 < value2 )
+
+DEF_CMD_JMP_INSTR(jl, value1 > value2 )
+
+#undef push
+
+#undef pop
+
+DEF_CMD (call, CMD_call, {
+if (LABEL_CONDITION)
+{
+	NEXT_ELEM_CODE = CMD_jmp;
+	NEXT_ELEM_CODE = (double)(_labelArr[funcIntHelper]);
+
+	continue;
+	}
+else{
+	funcIntHelper = 0;
+	printf("WRONG INPUT");
+	exit(EXIT_FAILURE);
+	continue;
+}
+}, {
+	(*(CPU->refunds)).push(counter += 2);
+	JMP_CODE;
+	continue;
+}
+)
+
+DEF_CMD (ret, CMD_ret, SMPL_INSTR(ret), {
+(*(CPU->refunds)).pop(counter);
+	continue;
+}
+)
+
 
 #undef DEF_CMD_JMP_INSTR
 
 #undef NEXT_CMD
 
 #undef THIS_CMD
-
-#undef push
-
-#undef pop
 
 #undef stack
 
@@ -348,5 +426,9 @@ DEF_CMD_JMP_INSTR (je, {})
 #undef RAM_CONDITION
 
 #undef VALUE_CONDITION
+
+#undef JMP_CODE
+
+#undef SMPL_INSTR
 
 #endif

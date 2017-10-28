@@ -6,16 +6,15 @@
 #define VCPU_CPU_H
 
 struct VCPU {
+
 	Stack<double> *values;
 	Stack<int> *refunds;
 
 	double ax, bx, cx, dx;
 	double *ram;
-
-	size_t SzOfCode;
-
 	double *commands;
 
+	size_t SzOfCode;
 
 };
 

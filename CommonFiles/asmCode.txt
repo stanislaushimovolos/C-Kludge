@@ -1,3 +1,5 @@
 push 4
-pop [1]
-push [1]
+push 2
+je 1
+pop
+: 1

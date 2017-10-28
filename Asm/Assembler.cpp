@@ -12,7 +12,7 @@
 
 const char inputFilename[] = "../CommonFiles/asmCode.txt";
 const char outFilename[] = "../CommonFiles/machCode.txt";
-const char labelName[] = "label";
+const char labelName[] = ":";
 
 
 void *writeCode (const double *machCode, const size_t sizeOfMachCode);
