@@ -135,7 +135,8 @@ void executePrg (VCPU *CPU) {
 
 #define  DEF_CMD(name, num, codeAsm, codeCpu)           \
             case num:{                                  \
-            codeCpu }
+            codeCpu                                     \
+			std:: cout << num << std::endl;}
 
 	while (counter < CPU->SzOfCode) {
 

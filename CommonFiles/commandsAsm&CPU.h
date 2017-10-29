@@ -290,7 +290,6 @@ DEF_CMD (out, CMD_out, SMPL_INSTR(out),  {
 	double value = 0;
 
 	pop (value);
-	std::cout << value << std::endl;
 
 	counter++;
 	continue;
@@ -310,7 +309,7 @@ DEF_CMD (in, CMD_in, SMPL_INSTR(in),  {
 })
 
 
-#define JMP_CODE counter = CPU->commands[counter + 1]
+#define JMP_CODE counter = CPU->commands[counter + 1] - 1;
 
 DEF_CMD (jmp, CMD_jmp,{
 	if (LABEL_CONDITION)
@@ -384,7 +383,7 @@ DEF_CMD_JMP_INSTR(jl, value1 > value2 )
 DEF_CMD (call, CMD_call, {
 if (LABEL_CONDITION)
 {
-	NEXT_ELEM_CODE = CMD_jmp;
+	NEXT_ELEM_CODE = CMD_call;
 	NEXT_ELEM_CODE = (double)(_labelArr[funcIntHelper]);
 
 	continue;
@@ -396,14 +395,17 @@ else{
 	continue;
 }
 }, {
-	(*(CPU->refunds)).push(counter += 2);
+	(*(CPU->refunds)).push(counter + 2);
 	JMP_CODE;
 	continue;
 }
 )
 
 DEF_CMD (ret, CMD_ret, SMPL_INSTR(ret), {
-(*(CPU->refunds)).pop(counter);
+	int value = 0;
+
+	(*(CPU->refunds)).pop(value);
+	counter = value ;
 	continue;
 }
 )
