@@ -77,12 +77,12 @@ _arrayPtrCmd[codeCounter + 1] != NULL                                           
 
 
 
-DEF_CMD (push, CMD_pushReg, {                                                                               \
-    if (REG_CONDITION)                                                                                      \
-    {                                                                                                       \
-        NEXT_ELEM_CODE = CMD_pushReg;                                                                       \
-        NEXT_ELEM_CODE = ASSIG_REG;                                                                         \
-        continue;                                                                                           \
+DEF_CMD (push, CMD_pushReg, {
+    if (REG_CONDITION)
+    {
+        NEXT_ELEM_CODE = CMD_pushReg;
+        NEXT_ELEM_CODE = ASSIG_REG;
+        continue;
 
 	}
 	}, {
@@ -113,14 +113,14 @@ DEF_CMD (push, CMD_pushReg, {                                                   
 	continue;
 })
 
-DEF_CMD (push, CMD_pushRam, {																			    \
-	 if (RAM_CONDITION)	                                                                                    \
-		{                                                                                                   \
-		NEXT_ELEM_CODE = CMD_pushRam;                                                                       \
-		NEXT_ELEM_CODE = (double)funcIntHelper;                                                             \
-		funcIntHelper = 0;                                                                                  \
-		continue;                                                                                           \
-		}                                                                                                   \
+DEF_CMD (push, CMD_pushRam, {
+	 if (RAM_CONDITION)
+		{
+		NEXT_ELEM_CODE = CMD_pushRam;
+		NEXT_ELEM_CODE = (double)funcIntHelper;
+		funcIntHelper = 0;
+		continue;
+		}
 	}, {
 
 	if ((int)((CPU->commands)[1 + counter]) < RAM_SIZE){
@@ -135,30 +135,30 @@ DEF_CMD (push, CMD_pushRam, {																			    \
 
 })
 
-DEF_CMD (push, CMD_push, {																					\
-	 if (VALUE_CONDITION)	                                                                                \
-		{                                                                                                   \
-		funcDbHelper = 0;																					\
-		NEXT_ELEM_CODE = CMD_push;                                                                          \
-		NEXT_ELEM_CODE = strtod(_arrayPtrCmd[codeCounter - 1], NULL);                                       \
-		continue;                                                                                           \
+DEF_CMD (push, CMD_push, {
+	 if (VALUE_CONDITION)
+		{
+		funcDbHelper = 0;
+		NEXT_ELEM_CODE = CMD_push;
+		NEXT_ELEM_CODE = strtod(_arrayPtrCmd[codeCounter - 1], NULL);
+		continue;
 		}}, {push (NEXT_CMD); counter++; continue;})
 
 DEF_CMD (push, CMD_ERR, {
-		if (1) {                                                                                            \
-		printf("WRONG INPUT");                                                                              \
-		exit(EXIT_FAILURE);                                                                                 \
+		if (1) {
+		printf("WRONG INPUT");
+		exit(EXIT_FAILURE);
 		continue;
 		}
-																											\
+
 	}, {})
 
-DEF_CMD (pop, CMD_popReg, {                                                                                 \
-	if(REG_CONDITION){                                                                                      \
-		NEXT_ELEM_CODE = CMD_popReg;                                                                        \
-        NEXT_ELEM_CODE = ASSIG_REG;                                                                         \
-        continue;                                                                                           \
-	}                                                                                                       \
+DEF_CMD (pop, CMD_popReg, {
+	if(REG_CONDITION){
+		NEXT_ELEM_CODE = CMD_popReg;
+        NEXT_ELEM_CODE = ASSIG_REG;
+        continue;
+	}
 	}, {
 	switch ((int)((CPU->commands)[++counter])){
 		case 1:{
@@ -187,13 +187,13 @@ DEF_CMD (pop, CMD_popReg, {                                                     
 		continue;
 })
 
-DEF_CMD (pop, CMD_popRam, {                                                                                 \
-	if(RAM_CONDITION){                                                                                      \
-		NEXT_ELEM_CODE = CMD_popRam;                                                                        \
-		NEXT_ELEM_CODE = (double)funcIntHelper;                                                             \
-		funcIntHelper = 0;                                                                                  \
-		continue;                                                                                           \
-	}                                                                                                       \
+DEF_CMD (pop, CMD_popRam, {
+	if(RAM_CONDITION){
+		NEXT_ELEM_CODE = CMD_popRam;
+		NEXT_ELEM_CODE = (double)funcIntHelper;
+		funcIntHelper = 0;
+		continue;
+	}
 	}, {
 
 	if ((int)((CPU->commands)[1 + counter]) < RAM_SIZE){
@@ -207,89 +207,58 @@ DEF_CMD (pop, CMD_popRam, {                                                     
 		}
 	})
 
-DEF_CMD (pop, CMD_pop, {                                                                                    \
-	if(1){                                                                                                  \
-		NEXT_ELEM_CODE = CMD_pop;                                                                           \
-		funcIntHelper = 0;                                                                                  \
-		continue;                                                                                           \
-	}                                                                                                       \
-	}, {pop(); counter++; continue;})                                                                       \
+DEF_CMD (pop, CMD_pop, {
+	if(1){
+		NEXT_ELEM_CODE = CMD_pop;
+		funcIntHelper = 0;
+		continue;
+	}
+	}, {pop(); counter++; continue;})
 
 
 
 
 #define SMPL_INSTR(name) {                                                                                  \
-	if(1){                                                                                                  \
+	                                                                                                        \
 		NEXT_ELEM_CODE = CMD_##name;                                                                        \
 		funcIntHelper = 0;                                                                                  \
 		continue;                                                                                           \
+	                                                                                                        \
+	}
+
+#define DEF_CMD_ARITH(name, CMD_name, operation)                                                            \
+DEF_CMD (name, CMD_name, SMPL_INSTR(name),  {                                                               \
+																											\
+	double value1 = 0;                                                                                      \
+	double value2 = 0;                                                                                      \
+																											\
+	pop(value1);                                                                                            \
+	pop(value2);                                                                                            \
+																											\
+	push(value2);                                                                                           \
+	push(value1);                                                                                           \
+																											\
+	operation;                                                                                             \
+																											\
+	counter++;                                                                                              \
+	continue;                                                                                               \
 	}                                                                                                       \
-	}
-
-DEF_CMD (add, CMD_add, SMPL_INSTR(add),  {
-
-	double value1 = 0;
-	double value2 = 0;
-
-	pop(value1);
-	pop(value2);
-	push (value1 + value2);
-
-	counter++;
-	continue;
-
-	}
 	)
 
-DEF_CMD (sub, CMD_sub, SMPL_INSTR(sub),  {
+DEF_CMD_ARITH (add, CMD_add, push(value1 + value2) )
 
-	double value1 = 0;
-	double value2 = 0;
+DEF_CMD_ARITH (sub, CMD_sub, push (value2 - value1) )
 
-	pop(value1);
-	pop(value2);
-	push (value2 - value1);
+DEF_CMD_ARITH (mul, CMD_mul, push (value1 * value2) )
 
-	counter++;
-	continue;
-	}
-	)
-
-DEF_CMD (mul, CMD_mul, SMPL_INSTR(mul),  {
-
-	double value1 = 0;
-	double value2 = 0;
-
-	pop(value1);
-	pop(value2);
-	push (value1 * value2);
-
-	counter++;
-	continue;
-
-}
-)
-
-DEF_CMD (div, CMD_div, SMPL_INSTR(div),  {
-
-	double value1 = 0;
-	double value2 = 0;
-
-	pop(value1);
-	pop(value2);
-	push (value2 / value1);
-
-	counter++;
-	continue;
-
-}
-)
+DEF_CMD_ARITH (div, CMD_div, push (value2 / value1) )
 
 DEF_CMD (out, CMD_out, SMPL_INSTR(out),  {
 
 	double value = 0;
 
 	pop (value);
+	printf("%lg", value);
 
 	counter++;
 	continue;
@@ -432,5 +401,7 @@ DEF_CMD (ret, CMD_ret, SMPL_INSTR(ret), {
 #undef JMP_CODE
 
 #undef SMPL_INSTR
+
+#undef DEF_CMD_ARITH
 
 #endif

@@ -1,9 +1,12 @@
-push 1
-call 1
-jmp 2
 push 3
-: 1
-push 2
-ret
-: 2
+push 5
+add
 push 3
+push 5
+mul
+push 3
+push 5
+sub
+push 3
+push 5
+div
