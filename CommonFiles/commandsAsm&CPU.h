@@ -32,7 +32,8 @@ enum {
 	CMD_ret,
 	CMD_in,
 	CMD_ERR,
-	CMD_call
+	CMD_call,
+	CMD_end
 
 };
 
@@ -258,7 +259,7 @@ DEF_CMD (out, CMD_out, SMPL_INSTR(out),  {
 	double value = 0;
 
 	pop (value);
-	printf("%lg", value);
+	printf("%lg\n", value);
 
 	counter++;
 	continue;
@@ -364,7 +365,7 @@ else{
 	continue;
 }
 }, {
-	(*(CPU->refunds)).push(counter + 2);
+	(*(CPU->refunds)).push(counter );
 	JMP_CODE;
 	continue;
 }
@@ -376,6 +377,11 @@ DEF_CMD (ret, CMD_ret, SMPL_INSTR(ret), {
 	(*(CPU->refunds)).pop(value);
 	counter = value ;
 	continue;
+}
+)
+
+DEF_CMD (end, CMD_end, SMPL_INSTR(end), {
+	exit(EXIT_SUCCESS);
 }
 )
 

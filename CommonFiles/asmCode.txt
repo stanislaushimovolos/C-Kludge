@@ -1,12 +1,59 @@
-push 3
-push 5
-add
-push 3
-push 5
-mul
-push 3
-push 5
+in
+pop cx
+push 0
+push cx
+
+jb 3
+je 4
+
+pop
+pop
+
+push cx
+pop bx
+push bx
+pop ax
+
+call 1
+
+: 1
+
+push ax
+push 1
 sub
-push 3
-push 5
-div
+pop ax
+pop
+pop
+push ax
+push 0
+
+je 2
+
+pop
+pop
+
+push bx
+push ax
+mul
+
+pop bx
+pop
+pop
+ret
+
+: 2
+
+push bx
+out
+
+: 3
+
+end
+
+push 0
+je 4
+
+: 4
+push 1
+out
+end

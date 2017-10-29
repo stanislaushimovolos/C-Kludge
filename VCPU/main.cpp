@@ -34,14 +34,12 @@ int main () {
 
 	createCommandArr (code, &arrOfCMD, &szOfCmdArr);
 
-	createStack (refunds, int, "%d", szOfCode + 1);
-	createStack (values, double, "%lg", RET_AMOUNT);
+	createStack (refunds, int, "%d", RET_AMOUNT);
+	createStack (values, double, "%lg", szOfCode + 1);
 
 	Construct_Cpu (szOfCmdArr, &Cpu, &values, &refunds, arrOfCMD);
 
 	executePrg (&Cpu);
-
-	dumpCPU (Cpu);
 
 	Destruct_Cpu (&Cpu);
 	return 0;
@@ -136,7 +134,7 @@ void executePrg (VCPU *CPU) {
 #define  DEF_CMD(name, num, codeAsm, codeCpu)           \
             case num:{                                  \
             codeCpu                                     \
-			std:: cout << num << std::endl;}
+            std:: cout << num << std::endl;}
 
 	while (counter < CPU->SzOfCode) {
 
