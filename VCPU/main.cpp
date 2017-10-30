@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include <assert.h>
+#include <cmath>
 
 #include "../Stack/stack.h"
 
@@ -17,7 +18,7 @@
 #define RET_AMOUNT 100
 #define INIT_AMOUT_OF_COMMANDS 150
 
-const char codeFilename[] = "../CommonFiles/machCode.txt";
+const char codeFilename[] = "../CommonFiles/kvadratCore.txt";
 
 
 int main () {
@@ -27,7 +28,7 @@ int main () {
 
 	VCPU Cpu = {};
 
-	char *code = getBufferFromFileGetSzOfBuf ("../CommonFiles/machCode.txt", &szOfCode);
+	char *code = getBufferFromFileGetSzOfBuf (codeFilename, &szOfCode);
 	double *arrOfCMD = (double *) calloc (szOfCmdArr, sizeof (double));
 
 	controlVerSig (&code);
@@ -41,7 +42,10 @@ int main () {
 
 	executePrg (&Cpu);
 
+	dumpCPU (Cpu);
+
 	Destruct_Cpu (&Cpu);
+
 	return 0;
 }
 

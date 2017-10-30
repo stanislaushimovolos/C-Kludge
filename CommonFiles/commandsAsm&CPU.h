@@ -33,7 +33,8 @@ enum {
 	CMD_in,
 	CMD_ERR,
 	CMD_call,
-	CMD_end
+	CMD_end,
+	CMD_sqrt
 
 };
 
@@ -236,10 +237,8 @@ DEF_CMD (name, CMD_name, SMPL_INSTR(name),  {                                   
 	pop(value1);                                                                                            \
 	pop(value2);                                                                                            \
 																											\
-	push(value2);                                                                                           \
-	push(value1);                                                                                           \
 																											\
-	operation;                                                                                             \
+	operation;                                                                                              \
 																											\
 	counter++;                                                                                              \
 	continue;                                                                                               \
@@ -273,6 +272,18 @@ DEF_CMD (in, CMD_in, SMPL_INSTR(in),  {
 	std::cin >> value;
 
 	push(value);
+
+	counter++;
+	continue;
+})
+
+DEF_CMD (sqrt, CMD_sqrt, SMPL_INSTR(sqrt),  {
+
+	double value = 0;
+
+	pop(value);
+
+	push(sqrt(value));
 
 	counter++;
 	continue;
@@ -365,7 +376,7 @@ else{
 	continue;
 }
 }, {
-	(*(CPU->refunds)).push(counter );
+	(*(CPU->refunds)).push(counter + 2 );
 	JMP_CODE;
 	continue;
 }

@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstring>
+#include <cstdlib>
 
 #include "../CommonFiles/fileworking.h"
 
@@ -9,6 +10,7 @@
 
 #define INIT_ARR_SZ 100
 #define MAX_LABEL_AMOUNT 100
+
 
 const char inputFilename[] = "../CommonFiles/asmCode.txt";
 const char outFilename[] = "../CommonFiles/machCode.txt";
@@ -30,9 +32,10 @@ int main () {
 
 	char **arrayPtrCmd = (char **) calloc (cmdAmount + 1, sizeof (char **));
 
+	double *machCode = (double *) calloc (2 * cmdAmount + 1, sizeof (double));
+
 	char *labelArr = createPtrArrLabelArr (code, &arrayPtrCmd, &cmdAmount);
 
-	double *machCode = (double *) calloc (2 * cmdAmount + 1, sizeof (double));
 
 	assemble (arrayPtrCmd, machCode, cmdAmount, labelArr);
 
@@ -91,11 +94,13 @@ char *createPtrArrLabelArr (char *const code, char ***const arrayPtrCmd, size_t 
 	while (LeXem != NULL) {
 
 		if (lbNum > _labelAmount - 2) {
-			labelArr = (char *) realloc (labelArr, *sizePtrArr += *sizePtrArr / 2);
+			_labelAmount += _labelAmount / 2;
+			labelArr = (char *) realloc (labelArr, _labelAmount* sizeof(char*));
 		}
 
-		if (*sizePtrArr < *sizePtrArr - 2) {
-			*arrayPtrCmd = (char **) realloc (*arrayPtrCmd, _labelAmount += _labelAmount / 2);
+		if (cmdCounter >= *sizePtrArr - 2) {
+			*sizePtrArr = *sizePtrArr / 2 + *sizePtrArr;
+			*arrayPtrCmd = (char **) realloc (*arrayPtrCmd, *sizePtrArr * sizeof(char**));
 		}
 
 		if (strcmp (LeXem, labelName) == 0) {
@@ -108,7 +113,7 @@ char *createPtrArrLabelArr (char *const code, char ***const arrayPtrCmd, size_t 
 
 		(*arrayPtrCmd)[cmdCounter] = LeXem;
 
-		LeXem = strtok (NULL, " \n");
+		LeXem = strtok (NULL, " \n\t");
 		cmdCounter++;
 	}
 	*sizePtrArr = (size_t) cmdCounter;
