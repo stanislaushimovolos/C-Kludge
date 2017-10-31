@@ -115,6 +115,7 @@ out
     end
 
 : 4
+
     push bx
     push -1
     mul

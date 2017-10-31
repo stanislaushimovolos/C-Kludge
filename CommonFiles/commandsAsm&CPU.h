@@ -41,13 +41,20 @@ enum {
 #ifdef  DEF
 
 #ifdef ASM
+
 double funcDbHelper = 0;
 int funcIntHelper = 0;
+
 #endif
+
 
 #define ASSIG_REG strchr ("abcd", (_arrayPtrCmd[codeCounter - 1 ])[0]) - "abcd" + 1;
 
+
+
 #define NEXT_ELEM_CODE machCode[codeCounter++]
+
+
 
 #define REG_CONDITION \
 	_arrayPtrCmd[codeCounter + 1] != NULL &&_arrayPtrCmd[codeCounter + 1][1] == 'x' &&                                                                                 \
@@ -55,19 +62,27 @@ int funcIntHelper = 0;
 				codeCounter  < sizeOfMachCode - 1 &&                                                        \
 				(_arrayPtrCmd[codeCounter + 1])[2] == 0
 
+
+
 #define RAM_CONDITION                                                                                       \
 _arrayPtrCmd[codeCounter + 1] != NULL                                                                       \
 									&& codeCounter  < sizeOfMachCode - 1                                    \
 									&& sscanf(_arrayPtrCmd[codeCounter + 1], "[%d]", &funcIntHelper )!= 0   \
 
+
+
 #define VALUE_CONDITION _arrayPtrCmd[codeCounter + 1] != NULL                                               \
 									&& codeCounter  < sizeOfMachCode - 1                                    \
 									&& sscanf(_arrayPtrCmd[codeCounter + 1], "%lg", &funcDbHelper )!= 0     \
+
+
 
 #define LABEL_CONDITION _arrayPtrCmd[codeCounter + 1] != NULL                                               \
 									&& codeCounter  < sizeOfMachCode - 1                                    \
 									&& sscanf(_arrayPtrCmd[codeCounter + 1], "%d", &funcIntHelper )!= 0	    \
 									&& _labelArr[funcIntHelper] != -1
+
+
 
 #define NEXT_CMD (CPU->commands)[++counter]
 #define THIS_CMD (CPU->commands)[counter]
@@ -162,6 +177,9 @@ DEF_CMD (pop, CMD_popReg, {
         continue;
 	}
 	}, {
+
+/*	pop (registers [(int)((CPU->commands)[++counter])]); */
+
 	switch ((int)((CPU->commands)[++counter])){
 		case 1:{
 			pop(CPU->ax);

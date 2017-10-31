@@ -1,6 +1,5 @@
 #include <iostream>
 #include <cstring>
-#include <assert.h>
 #include <cmath>
 
 #include "../Stack/stack.h"
@@ -15,34 +14,33 @@
 #define ASM_NAME "ASM"
 
 #define RAM_SIZE 256
-#define RET_AMOUNT 100
-#define INIT_AMOUT_OF_COMMANDS 150
+#define MAX_RET_AMOUNT 200
+#define INIT_AMOUNT_OF_COMMANDS 200
+#define MAX_VALUE_STACK_SIZE 200
 
-const char codeFilename[] = "../CommonFiles/kvadratCore.txt";
+const char codeFilename[] = "../CommonFiles/machcode.txt";
 
 
 int main () {
 
-	size_t szOfCmdArr = INIT_AMOUT_OF_COMMANDS;
-	size_t szOfCode = 0;
+	size_t szOfCmdArr = INIT_AMOUNT_OF_COMMANDS;
+
+	char *code = getBufferFromFileGetSzOfBuf (codeFilename);
+	double *arrOfCMD = (double *) calloc (szOfCmdArr, sizeof (double));
 
 	VCPU Cpu = {};
-
-	char *code = getBufferFromFileGetSzOfBuf (codeFilename, &szOfCode);
-	double *arrOfCMD = (double *) calloc (szOfCmdArr, sizeof (double));
 
 	controlVerSig (&code);
 
 	createCommandArr (code, &arrOfCMD, &szOfCmdArr);
 
-	createStack (refunds, int, "%d", RET_AMOUNT);
-	createStack (values, double, "%lg", szOfCode + 1);
+	createStack (refunds, int, "%d", MAX_RET_AMOUNT);
+	createStack (values, double, "%lg", MAX_VALUE_STACK_SIZE);
 
 	Construct_Cpu (szOfCmdArr, &Cpu, &values, &refunds, arrOfCMD);
 
-	executePrg (&Cpu);
 
-	dumpCPU (Cpu);
+	executePrg (&Cpu);
 
 	Destruct_Cpu (&Cpu);
 
@@ -58,7 +56,7 @@ void controlVerSig (char **code) {
 
 #define COND_CHEAK(name)                        \
      if (strcmp (LeXem, name) != 0) {           \
-        std::cout << "Incorrect data";          \
+        printf("Incorrect data");               \
         exit (EXIT_FAILURE);                    \
         }                                       \
 
@@ -80,6 +78,7 @@ void *createCommandArr (char *const code, double **const arrayPtrCmd, size_t *si
 
 	assert (code);
 	assert (arrayPtrCmd);
+	assert (sizePtrArr);
 
 	int cmdCounter = 0;
 	char *LeXem = strtok (code, " \n");
@@ -95,6 +94,8 @@ void *createCommandArr (char *const code, double **const arrayPtrCmd, size_t *si
 		cmdCounter++;
 	}
 	*sizePtrArr = (size_t) cmdCounter;
+
+	free(code);
 
 }
 

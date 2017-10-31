@@ -3,7 +3,7 @@ pop cx
 push 0
 push cx
 
-jb 5
+jb 6
 je 4
 
 pop
@@ -45,3 +45,4 @@ end
 push bx
 out
 end
+ : 6

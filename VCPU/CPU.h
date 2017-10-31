@@ -11,8 +11,11 @@ struct VCPU {
 	Stack<int> *refunds;
 
 	double ax, bx, cx, dx;
+
 	double *ram;
+
 	double *commands;
+
 
 	size_t SzOfCode;
 
@@ -21,7 +24,6 @@ struct VCPU {
 void Construct_Cpu (size_t sizeOfCmdArr, VCPU *Cpu, Stack<double> *_lValues, Stack<int> *_lRefunds, double *_lcommands);
 
 void Destruct_Cpu (VCPU *Cpu);
-
 
 void controlVerSig (char **code);
 

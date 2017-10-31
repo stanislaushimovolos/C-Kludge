@@ -9,7 +9,7 @@
 #define ASM_NAME "ASM"
 
 #define INIT_ARR_SZ 100
-#define MAX_LABEL_AMOUNT 100
+#define INIT_LABEL_AMOUNT 100
 
 
 const char inputFilename[] = "../CommonFiles/asmCode.txt";
@@ -17,11 +17,11 @@ const char outFilename[] = "../CommonFiles/machCode.txt";
 const char labelName[] = ":";
 
 
-void *writeCode (const double *machCode, const size_t sizeOfMachCode);
+void *writeCode (const double *machCode, const size_t sizeOfMachCode, const char *_outFilename);
 
 char *createPtrArrLabelArr (char *const code, char ***const arrayPtrCmd, size_t *sizePtrArr);
 
-void assemble (char **const _arrayPtrCmd, double *const machCode, size_t sizeOfMachCode, char *labelArr);
+void assemble (char **const _arrayPtrCmd, double *const machCode, size_t sizeOfMachCode,  char *labelArr);
 
 
 int main () {
@@ -32,16 +32,15 @@ int main () {
 
 	char **arrayPtrCmd = (char **) calloc (cmdAmount + 1, sizeof (char **));
 
-	double *machCode = (double *) calloc (2 * cmdAmount + 1, sizeof (double));
-
 	char *labelArr = createPtrArrLabelArr (code, &arrayPtrCmd, &cmdAmount);
+
+	double *machCode = (double *) calloc (cmdAmount + 1, sizeof (double));
 
 
 	assemble (arrayPtrCmd, machCode, cmdAmount, labelArr);
 
-	writeCode (machCode, cmdAmount);
+	writeCode (machCode, cmdAmount, outFilename);
 
-	free (code);
 	free (machCode);
 	free (arrayPtrCmd);
 	free (labelArr);
@@ -82,9 +81,9 @@ char *createPtrArrLabelArr (char *const code, char ***const arrayPtrCmd, size_t 
 	assert (arrayPtrCmd);
 
 	int cmdCounter = 0;
-	size_t _labelAmount = MAX_LABEL_AMOUNT;
-	char *LeXem = strtok (code, " \n");
-	char *labelArr = (char *) calloc (MAX_LABEL_AMOUNT + 1, sizeof (char));
+	size_t _labelAmount = INIT_LABEL_AMOUNT;
+	char *LeXem = strtok (code, " \n\t");
+	char *labelArr = (char *) calloc (INIT_LABEL_AMOUNT + 1, sizeof (char));
 
 	for (int i = 0; i < _labelAmount; i++)
 		labelArr[i] = -1;
@@ -95,18 +94,18 @@ char *createPtrArrLabelArr (char *const code, char ***const arrayPtrCmd, size_t 
 
 		if (lbNum > _labelAmount - 2) {
 			_labelAmount += _labelAmount / 2;
-			labelArr = (char *) realloc (labelArr, _labelAmount* sizeof(char*));
+			labelArr = (char *) realloc (labelArr, _labelAmount * sizeof (char *));
 		}
 
 		if (cmdCounter >= *sizePtrArr - 2) {
 			*sizePtrArr = *sizePtrArr / 2 + *sizePtrArr;
-			*arrayPtrCmd = (char **) realloc (*arrayPtrCmd, *sizePtrArr * sizeof(char**));
+			*arrayPtrCmd = (char **) realloc (*arrayPtrCmd, *sizePtrArr * sizeof (char **));
 		}
 
 		if (strcmp (LeXem, labelName) == 0) {
-			LeXem = strtok (NULL, " \n");
+			LeXem = strtok (NULL, " \n\t");
 			lbNum = (char) strtol (LeXem, NULL, 10);
-			LeXem = strtok (NULL, " \n");
+			LeXem = strtok (NULL, " \n\t");
 			labelArr[lbNum] = (char) (cmdCounter + 1);
 			continue;
 		}
@@ -122,11 +121,11 @@ char *createPtrArrLabelArr (char *const code, char ***const arrayPtrCmd, size_t 
 }
 
 
-void *writeCode (const double *machCode, const size_t sizeOfMachCode) {
+void *writeCode (const double *machCode, const size_t sizeOfMachCode, const char *_outFilename) {
 
 	assert (machCode);
 
-	FILE *outFile = fopen (outFilename, "w");
+	FILE *outFile = fopen (_outFilename, "w");
 
 	fprintf (outFile, "%s\n", SIGNATURE);
 	fprintf (outFile, "%s ", ASM_NAME);
