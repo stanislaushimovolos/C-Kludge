@@ -19,6 +19,7 @@ char *getBufferFromFileGetSzOfBuf (const char *_inputFileName, size_t *sizeOfBuf
 	assert (file);
 
 
+
 	fseek (file, 0, SEEK_END);
 	sizeOfBuffer1 = (size_t) ftell (file);
 	fseek (file, 0, SEEK_SET);
