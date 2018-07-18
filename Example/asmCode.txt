@@ -1,0 +1,4 @@
+ push 4
+ pop 3
+ : 1
+ add 5
