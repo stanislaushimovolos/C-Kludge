@@ -38,59 +38,49 @@ enum {
 
 };
 
-#ifdef  DEF
-
-#ifdef ASM
-
-double funcDbHelper = 0;
-int funcIntHelper = 0;
-
-#endif
-
-
-#define ASSIG_REG strchr ("abcd", (_arrayPtrCmd[codeCounter - 1 ])[0]) - "abcd" + 1;
+#define ASSIGN_REG strchr ("abcd", (tokens[codeCounter - 1 ])[0]) - "abcd" + 1;
 
 
 
-#define NEXT_ELEM_CODE machCode[codeCounter++]
+#define NEXT_ELEM_CODE data->binaryCode[codeCounter++]
 
 
 
 #define REG_CONDITION \
-	_arrayPtrCmd[codeCounter + 1] != NULL &&_arrayPtrCmd[codeCounter + 1][1] == 'x' &&                                                                                 \
-				strchr ("abcd", (_arrayPtrCmd[codeCounter + 1])[0]) &&                                      \
-				codeCounter  < sizeOfMachCode - 1 &&                                                        \
-				(_arrayPtrCmd[codeCounter + 1])[2] == 0
+	tokens[codeCounter + 1] != NULL && tokens[codeCounter + 1][1] == 'x' &&                                                                                 \
+				strchr ("abcd", (tokens[codeCounter + 1])[0]) &&                                      	\
+				codeCounter  < tokensNumber - 1 &&                                                    	\
+				(tokens[codeCounter + 1])[2] == 0
 
 
 
-#define RAM_CONDITION                                                                                       \
-_arrayPtrCmd[codeCounter + 1] != NULL                                                                       \
-									&& codeCounter  < sizeOfMachCode - 1                                    \
-									&& sscanf(_arrayPtrCmd[codeCounter + 1], "[%d]", &funcIntHelper )!= 0   \
+#define RAM_CONDITION                                                                                 	\
+tokens[codeCounter + 1] != NULL                                                                       	\
+									&& codeCounter  < tokensNumber - 1                                	\
+									&& sscanf(tokens[codeCounter + 1], "[%d]", &integerTemp )!= 0  		\
 
 
 
-#define VALUE_CONDITION _arrayPtrCmd[codeCounter + 1] != NULL                                               \
-									&& codeCounter  < sizeOfMachCode - 1                                    \
-									&& sscanf(_arrayPtrCmd[codeCounter + 1], "%lg", &funcDbHelper )!= 0     \
+#define VALUE_CONDITION tokens[codeCounter + 1] != NULL                                              	\
+									&& codeCounter  < tokensNumber - 1                                  \
+									&& sscanf(tokens[codeCounter + 1], "%lg", &doubleTemp )!= 0     	\
 
 
 
-#define LABEL_CONDITION _arrayPtrCmd[codeCounter + 1] != NULL                                               \
-									&& codeCounter  < sizeOfMachCode - 1                                    \
-									&& sscanf(_arrayPtrCmd[codeCounter + 1], "%d", &funcIntHelper )!= 0	    \
-									&& _labelArr[funcIntHelper] != -1
+#define LABEL_CONDITION tokens[codeCounter + 1] != NULL                                               	\
+									&& codeCounter  < tokensNumber - 1                                  \
+									&& sscanf(tokens[codeCounter + 1], "%d", &integerTemp )!= 0	    	\
+									&& data->labels[integerTemp] != -1
 
 
 
-#define NEXT_CMD (CPU->commands)[++counter]
+/*#define NEXT_CMD (CPU->commands)[++counter]
 #define THIS_CMD (CPU->commands)[counter]
 
 #define push stack.push
 #define pop stack.pop
 
-#define stack (*(CPU->values))
+#define stack (*(CPU->values))*/
 
 
 
@@ -98,7 +88,7 @@ DEF_CMD (push, CMD_pushReg, {
     if (REG_CONDITION)
     {
         NEXT_ELEM_CODE = CMD_pushReg;
-        NEXT_ELEM_CODE = ASSIG_REG;
+        NEXT_ELEM_CODE = ASSIGN_REG;
         continue;
 
 	}
@@ -130,12 +120,13 @@ DEF_CMD (push, CMD_pushReg, {
 	continue;
 })
 
+
 DEF_CMD (push, CMD_pushRam, {
 	 if (RAM_CONDITION)
 		{
 		NEXT_ELEM_CODE = CMD_pushRam;
-		NEXT_ELEM_CODE = (double)funcIntHelper;
-		funcIntHelper = 0;
+		NEXT_ELEM_CODE = (double)integerTemp;
+		integerTemp = 0;
 		continue;
 		}
 	}, {
@@ -155,17 +146,21 @@ DEF_CMD (push, CMD_pushRam, {
 DEF_CMD (push, CMD_push, {
 	 if (VALUE_CONDITION)
 		{
-		funcDbHelper = 0;
+		doubleTemp = 0;
 		NEXT_ELEM_CODE = CMD_push;
-		NEXT_ELEM_CODE = strtod(_arrayPtrCmd[codeCounter - 1], NULL);
+		NEXT_ELEM_CODE = strtod(tokens[codeCounter - 1], NULL);
 		continue;
-		}}, {push (NEXT_CMD); counter++; continue;})
+		}},
+		{
+			push (NEXT_CMD); counter++; continue;
+		})
 
 DEF_CMD (push, CMD_ERR, {
-		if (1) {
-		printf("WRONG INPUT");
-		exit(EXIT_FAILURE);
-		continue;
+		if (1)
+		{
+			printf("WRONG INPUT");
+			exit(EXIT_FAILURE);
+			continue;
 		}
 
 	}, {})
@@ -173,7 +168,7 @@ DEF_CMD (push, CMD_ERR, {
 DEF_CMD (pop, CMD_popReg, {
 	if(REG_CONDITION){
 		NEXT_ELEM_CODE = CMD_popReg;
-        NEXT_ELEM_CODE = ASSIG_REG;
+        NEXT_ELEM_CODE = ASSIGN_REG;
         continue;
 	}
 	}, {
@@ -210,8 +205,8 @@ DEF_CMD (pop, CMD_popReg, {
 DEF_CMD (pop, CMD_popRam, {
 	if(RAM_CONDITION){
 		NEXT_ELEM_CODE = CMD_popRam;
-		NEXT_ELEM_CODE = (double)funcIntHelper;
-		funcIntHelper = 0;
+		NEXT_ELEM_CODE = (double)integerTemp;
+integerTemp = 0;
 		continue;
 	}
 	}, {
@@ -230,7 +225,7 @@ DEF_CMD (pop, CMD_popRam, {
 DEF_CMD (pop, CMD_pop, {
 	if(1){
 		NEXT_ELEM_CODE = CMD_pop;
-		funcIntHelper = 0;
+		integerTemp = 0;
 		continue;
 	}
 	}, {pop(); counter++; continue;})
@@ -241,7 +236,7 @@ DEF_CMD (pop, CMD_pop, {
 #define SMPL_INSTR(name) {                                                                                  \
 	                                                                                                        \
 		NEXT_ELEM_CODE = CMD_##name;                                                                        \
-		funcIntHelper = 0;                                                                                  \
+		integerTemp = 0;                                                                                  	\
 		continue;                                                                                           \
 	                                                                                                        \
 	}
@@ -314,17 +309,18 @@ DEF_CMD (jmp, CMD_jmp,{
 	if (LABEL_CONDITION)
 	{
 		NEXT_ELEM_CODE = CMD_jmp;
-		NEXT_ELEM_CODE = (double)(_labelArr[funcIntHelper]);
+		NEXT_ELEM_CODE = (double)(data->labels[integerTemp]);
 
 		continue;
 	}
 	else{
-		funcIntHelper = 0;
+		integerTemp = 0;
 		printf("WRONG INPUT");
 		exit(EXIT_FAILURE);
 		continue;
 	}
-}, {
+},
+{
 	JMP_CODE;
 	continue;
 }
@@ -335,12 +331,12 @@ DEF_CMD (name, CMD_##name, {                                                    
 	if (LABEL_CONDITION)	                                    											\
 	{                                                                                                       \
 		NEXT_ELEM_CODE = CMD_##name;                                                                        \
-		NEXT_ELEM_CODE = (double)(_labelArr[funcIntHelper]);                                                \
+		NEXT_ELEM_CODE = (double)(data->labels[integerTemp]);                                             	\
 		                                                                                                    \
 		continue;                                                                                           \
 	}                                                                                                       \
 	else{                                                                                                   \
-		funcIntHelper = 0;                                                                                  \
+		integerTemp = 0;                                                                                  	\
 		printf("WRONG INPUT");                                                                              \
 		exit(EXIT_FAILURE);                                                                                 \
 		continue;                                                                                           \
@@ -383,12 +379,12 @@ DEF_CMD (call, CMD_call, {
 if (LABEL_CONDITION)
 {
 	NEXT_ELEM_CODE = CMD_call;
-	NEXT_ELEM_CODE = (double)(_labelArr[funcIntHelper]);
+	NEXT_ELEM_CODE = (double)(data->labels[integerTemp]);
 
 	continue;
 	}
 else{
-	funcIntHelper = 0;
+	integerTemp = 0;
 	printf("WRONG INPUT");
 	exit(EXIT_FAILURE);
 	continue;
@@ -423,7 +419,7 @@ DEF_CMD (end, CMD_end, SMPL_INSTR(end), {
 
 #undef stack
 
-#undef ASSIG_REG
+#undef ASSIGN_REG
 
 #undef NEXT_ELEM_CODE
 
@@ -438,5 +434,3 @@ DEF_CMD (end, CMD_end, SMPL_INSTR(end), {
 #undef SMPL_INSTR
 
 #undef DEF_CMD_ARITH
-
-#endif
