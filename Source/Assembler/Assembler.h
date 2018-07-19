@@ -5,18 +5,45 @@
 #ifndef ASSEMBLER_ASSEMBLER_H
 #define ASSEMBLER_ASSEMBLER_H
 
+/*!
+ * @file sorter.h
+ * @brief Contains function's headers and some constants.
+ * @author Stanislau Shimovolos
+ * @version 3.1
+ * @date 2018-7-19
+ */
+
+/*!
+  @def NDEBUG
+   Release version so asserts were turned off.
+*/
+
+#define NDEBUG
+
+#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-/// Release version so asserts were turned off.
-#define NDEBUG
+/*!
+ * @def ASM_VERSION
+ * Current version of the assembler (important for the stack machine).
+ */
+/*!
+ * @def ASM_NAME
+ * Name of current version of the assembler.
+ */
 
-#include <assert.h>
+/*!
+* @def SIGNATURE
+* Author's initials.
+*/
 
-#define ASM_VERSION "v2.1"
+#define ASM_VERSION "v3.0"
 #define SIGNATURE "SA"
 #define ASM_NAME "ASM"
+
+
 #define INIT_LABEL_NUMBER 32
 
 
@@ -26,7 +53,7 @@ static const char labelSign[] = ":";
 
 
 static const char *const errList[] = {"",
-                                      "Invalid arguments in function.",
+                                      "Incorrect arguments in function.",
                                       "Certain problems related to opening file.",
                                       "System couldn't allocate memory.",
                                       "Strtoul couldn't interpret a token as a number.",
@@ -38,7 +65,7 @@ static const char *const errList[] = {"",
 };
 
 /**
-* The list of possible errors
+* @brief The list of possible errors
 */
 
 enum error_codes
@@ -56,38 +83,104 @@ enum error_codes
 
 };
 
+/*!
+      @brief The structure which keeps tokens, information about labels, etc.
+
+      It contains the original assembly code, size of this code,
+      an array of tokens and  labels.
+ */
+
 
 typedef struct
 {
-    char *buffer;
-    char **tokens;
+    char *buffer;               //!<buffer with input data
+    char **tokens;              //!<array of tokens to which source data was splitted
 
-    unsigned int *labels;
-    unsigned int tokensNumber;
-    unsigned int labelsNumber;
+    unsigned int *labels;       //!<array of assembly labels (each of them keeps information about its position in tokens)
+    unsigned int tokensNumber;  //!<size of @ref tokens array
+    unsigned int labelsNumber;  //!<size of @ref labels array
 
-    double *binaryCode;
-    size_t size;
+    double *binaryCode;         //!<keeps opcodes of stack machine (for more information look \ref Commands.h)
+    size_t size;                //!<size of @ref buffer
 
 } code_t;
 
-int throw_error(unsigned int err_num, const char *usr_msg, const char *err_msg, const char *_func, int _line,
-                const char *_file);
 
-size_t countTokens(const char *buffer);
-
-int getBuf(code_t *data, const char *inputFile);
-
+/*!
+    @brief Shows information about @ref code_t object in the standard output.
+    @param[in] data  data @ref code_t object.
+    @return Returns an error code.
+*/
 int dumpCode_t(code_t *data);
 
+
+/*!
+    @brief Writes tokens in the standard output.
+    @param[in] data  data @ref code_t object.
+    @return Returns an error code.
+*/
 int displayTokens(code_t *data);
 
-int processAsmCode(code_t *data, const char *label);
+/*!
+ * @brief Evaluates assembly commands and the stack machine's opcodes.
+ * @param[in] data @ref code_t object.
+ * @return Returns an error code.
+ */
 
 int assemble(code_t *data);
 
-int writeCode(code_t *data, const char *_outFilename);
+/*!
+    @brief Reads data from an input file .
+    @param[in] data  @ref code_t object.
+    @param[in] inputFilename a name of the input file.
+    @return Returns an error code.
+*/
+int getBuf(code_t *data, const char *inputFile);
 
+
+/*!
+    @brief Splits the data into tokens and creates an array of labels.
+    @param[in] data  @ref code_t object.
+    @param[in] label symbol of the labels.
+    @return Returns an error code.
+*/
+int processAsmCode(code_t *data, const char *label);
+
+
+/*!
+    @brief Writes binary code in the text file for the stack machine (look @ref Commands.h and @ref Cpu.h).
+    @param[in] data  data @ref code_t object.
+    @param[in] outputFile the name of the output text file.
+    @return Returns an error code.
+*/
+int writeCode(code_t *data, const char *outFilename);
+
+
+/*!
+    @brief Returns an error code and prints information about the error(standard output + standard error output).
+    @param[in] err_num  error code.
+    @param[in] usr_msg information about the error which is available for user.
+    @param[in] _func name of the function where an error was detected.
+    @param[in] _line number of a code line where an error was detected.
+    @param[in] _file a name of  file where an error was detected.
+    @return returns an error code.
+*/
+int throw_error(unsigned int err_num, const char *usr_msg, const char *err_msg, const char *_func, int _line,
+                const char *_file);
+
+
+/*!
+    @brief Destroys a @ref code_t structure.
+    @param[in] data code_t object.
+*/
 void destructCode_t(code_t *code);
+
+
+/*!
+    @brief Counts the amount of tokens in the  input data.
+    @param[in] buffer input data.
+    @return number of tokens.
+*/
+size_t countTokens(const char *buffer);
 
 #endif //ASSEMBLER_ASSEMBLER_H

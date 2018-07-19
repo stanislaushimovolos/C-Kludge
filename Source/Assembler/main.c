@@ -1,3 +1,12 @@
+
+/*!
+ * @file sorter.h
+ * @brief Main program module.
+ * @author Stanislau Shimovolos
+ * @version 1.4
+ * @date 2018-7-19
+ */
+
 #include "Assembler.h"
 
 const char inputFilename[] = "../Example/asmCode.txt";
