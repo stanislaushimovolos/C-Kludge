@@ -29,10 +29,12 @@ static const char *const errList[] = {"",
                                       "Invalid arguments in function.",
                                       "Certain problems related to opening file.",
                                       "System couldn't allocate memory.",
-                                      "Error, unknown flag.",
                                       "Strtoul couldn't interpret a token as a number.",
                                       "A label (without value) was the last token.",
-                                      "One label was used twice."
+                                      "One label was used twice.",
+                                      "Non exist label.",
+                                      "Incorrect Push operand.",
+                                      "Operand name is unknown."
 };
 
 /**
@@ -44,10 +46,12 @@ enum error_codes
     ARGUMENTS_ERR = 1,      //!< Means that function argument or some of them are equal NULL.
     OPENFILE_ERR,           //!< Means that some problem was detected in process of opening file.
     MEMORY_ERR,             //!< Means that system couldn't allocate memory.
-    UNKNOWN_FLAG_ERR,       //!< Means that unknown flag was detected in the command line, possible options: -D, -A
     LABEL_VAL_ERR,          //!< Means that a number wasn't found after the labels symbol ( : )
     LABEL_EOF,              //!< Means that a label was the last token (without number of this label).
-    LABEL_REPEAT,           //!< Means that
+    LABEL_REPEAT,           //!< Means that one label value was used twice.
+    LABEL_NON_EXIST,        //!< Means that there was jump to non-existent label
+    PUSH_ERR,               //!< Means that operand of PUSH command is incorrect.
+    UNKNOWN_OPERAND,        //!< Means that token has unknown name
     OUT_OF_ERR_RANGE_ERR    //!< Means that num of the error is too large
 
 };

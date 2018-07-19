@@ -41,7 +41,6 @@ enum {
 #define ASSIGN_REG strchr ("abcd", (tokens[codeCounter - 1 ])[0]) - "abcd" + 1;
 
 
-
 #define NEXT_ELEM_CODE data->binaryCode[codeCounter++]
 
 
@@ -70,7 +69,7 @@ tokens[codeCounter + 1] != NULL                                                 
 #define LABEL_CONDITION tokens[codeCounter + 1] != NULL                                               	\
 									&& codeCounter  < tokensNumber - 1                                  \
 									&& sscanf(tokens[codeCounter + 1], "%d", &integerTemp )!= 0	    	\
-									&& data->labels[integerTemp] != -1
+									&& _labels[integerTemp] != 0                                   \
 
 
 
@@ -156,17 +155,15 @@ DEF_CMD (push, CMD_push, {
 		})
 
 DEF_CMD (push, CMD_ERR, {
-		if (1)
-		{
-			printf("WRONG INPUT");
-			exit(EXIT_FAILURE);
-			continue;
-		}
+			printf("Push command operand: %s\n", tokens[codeCounter + 1]);
+            return throw_error(PUSH_ERR, "Error, unknown operand.", "",
+                    __PRETTY_FUNCTION__, __LINE__, __FILE__);
 
 	}, {})
 
 DEF_CMD (pop, CMD_popReg, {
-	if(REG_CONDITION){
+	if(REG_CONDITION)
+	{
 		NEXT_ELEM_CODE = CMD_popReg;
         NEXT_ELEM_CODE = ASSIGN_REG;
         continue;
@@ -206,7 +203,7 @@ DEF_CMD (pop, CMD_popRam, {
 	if(RAM_CONDITION){
 		NEXT_ELEM_CODE = CMD_popRam;
 		NEXT_ELEM_CODE = (double)integerTemp;
-integerTemp = 0;
+        integerTemp = 0;
 		continue;
 	}
 	}, {
@@ -309,15 +306,14 @@ DEF_CMD (jmp, CMD_jmp,{
 	if (LABEL_CONDITION)
 	{
 		NEXT_ELEM_CODE = CMD_jmp;
-		NEXT_ELEM_CODE = (double)(data->labels[integerTemp]);
+		NEXT_ELEM_CODE = (double)(_labels[integerTemp]);
 
 		continue;
 	}
 	else{
-		integerTemp = 0;
-		printf("WRONG INPUT");
-		exit(EXIT_FAILURE);
-		continue;
+        printf("Labels value: %d\n", strtol(tokens[codeCounter + 1],NULL, 10));
+        return throw_error(LABEL_NON_EXIST, "Error, non-existent label.", "",
+            __PRETTY_FUNCTION__, __LINE__, __FILE__);
 	}
 },
 {
@@ -336,10 +332,10 @@ DEF_CMD (name, CMD_##name, {                                                    
 		continue;                                                                                           \
 	}                                                                                                       \
 	else{                                                                                                   \
-		integerTemp = 0;                                                                                  	\
-		printf("WRONG INPUT");                                                                              \
-		exit(EXIT_FAILURE);                                                                                 \
-		continue;                                                                                           \
+		printf("Labels value: %d\n", strtol(tokens[codeCounter + 1],NULL, 10));                             \
+        return throw_error(LABEL_NON_EXIST, "Error, non-existent label.", "",                               \
+        __PRETTY_FUNCTION__, __LINE__, __FILE__);                                                           \
+		                                                                                                    \
 	}                                                                                                       \
 },                                                                                                          \
 {                                                                                                           \
@@ -384,9 +380,9 @@ if (LABEL_CONDITION)
 	continue;
 	}
 else{
-	integerTemp = 0;
-	printf("WRONG INPUT");
-	exit(EXIT_FAILURE);
+    printf("Labels value: %d\n", strtol(tokens[codeCounter + 1],NULL, 10));                             \
+    return throw_error(LABEL_NON_EXIST, "Error, non-existent label.", "",                               \
+        __PRETTY_FUNCTION__, __LINE__, __FILE__);                                                       \
 	continue;
 }
 }, {

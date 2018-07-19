@@ -11,11 +11,7 @@ int main()
     getBuf(&code, inputFilename);
     processAsmCode(&code, labelSign);
     assemble(&code);
-
     writeCode(&code, outFilename);
-
-    //dumpCode_t(&code);
-
     destructCode_t(&code);
 
     return 0;
