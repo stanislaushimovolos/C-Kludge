@@ -1,27 +1,18 @@
-
 /*!
- * @file sorter.h
+ * @file main.c
  * @brief Main program module.
  * @author Stanislau Shimovolos
- * @version 1.4
+ * @version 3.1
  * @date 2018-7-19
  */
 
 #include "Assembler.h"
 
-const char inputFilename[] = "../Example/asmCode.txt";
-const char outFilename[] = "../Example/machCode.txt";
-const char labelName[] = ":";
-
-
-int main()
+int main(int argc, const char *argv[])
 {
     code_t code = {};
-    getBuf(&code, inputFilename);
-    processAsmCode(&code, labelSign);
-    assemble(&code);
-    writeCode(&code, outFilename);
-    destructCode_t(&code);
+    int err_num = assemble(&code, argc, argv);
 
-    return 0;
+    destructCode_t(&code);
+    return err_num;
 }

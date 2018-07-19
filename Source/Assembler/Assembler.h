@@ -6,7 +6,7 @@
 #define ASSEMBLER_ASSEMBLER_H
 
 /*!
- * @file sorter.h
+ * @file Assembler.h
  * @brief Contains function's headers and some constants.
  * @author Stanislau Shimovolos
  * @version 3.1
@@ -44,13 +44,17 @@
 #define ASM_NAME "ASM"
 
 
+/*!
+* @def INIT_LABEL_NUMBER
+* Initial size of label's array.
+*/
+
 #define INIT_LABEL_NUMBER 32
 
 
-static const char defaultOutput[] = "output.txt";
-static const char defaultInput[] = "poem.txt";
-static const char labelSign[] = ":";
-
+static const char defaultInput[] = "../../Example/asmCode.txt";
+static const char defaultOutput[] = "../../Example/machCode.txt";
+static const char labelSymbol[] = ":";
 
 static const char *const errList[] = {"",
                                       "Incorrect arguments in function.",
@@ -107,6 +111,15 @@ typedef struct
 
 
 /*!
+    @brief Starts all other functions. Does and error checking.
+    @param[in] data  data @ref code_t object.
+    @param argv, argc command line's arguments.
+    @return Returns an error code.
+*/
+int assemble(code_t *data, int argc, const char *argv[]);
+
+
+/*!
     @brief Shows information about @ref code_t object in the standard output.
     @param[in] data  data @ref code_t object.
     @return Returns an error code.
@@ -127,7 +140,7 @@ int displayTokens(code_t *data);
  * @return Returns an error code.
  */
 
-int assemble(code_t *data);
+int compile(code_t *data);
 
 /*!
     @brief Reads data from an input file .

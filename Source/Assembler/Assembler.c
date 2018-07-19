@@ -1,7 +1,6 @@
-
 /*!
  * @file Assembler.c
- * @brief Implementation of @ref sorter.h functions.
+ * @brief Implementation of @ref Assembler.h functions.
  * @author Stanislau Shimovolos
  * @version 3.1
  * @date 2018-7-19
@@ -37,6 +36,48 @@ if(!(var))                                                                      
         __PRETTY_FUNCTION__, __LINE__, __FILE__);                                       \
 
 
+
+#define execute(_func_)         \
+do                              \
+{                               \
+    state = _func_;             \
+    if (state)                  \
+    {                           \
+        destructCode_t(data);   \
+        return state;           \
+    }                           \
+}while(0)
+
+
+int assemble(code_t *data, int argc, const char *argv[])
+{
+    ARG_CHECK(data);
+    argc--;
+
+/*!
+ * @warning Do not rename @ref state (macro definition).
+ */
+    int state = 0;
+
+    if (argc)
+        execute(getBuf(data, argv[1]));
+    else
+        execute(getBuf(data, defaultInput));
+    argc--;
+
+    processAsmCode(data, labelSymbol);
+    compile(data);
+
+    if (argc > 0)
+        execute(writeCode(data, argv[2]));
+    else
+        execute(writeCode(data, defaultOutput));
+
+    return 0;
+}
+
+
+#undef execute
 
 int getBuf(code_t *data, const char *inputFile)
 {
@@ -144,7 +185,7 @@ int processAsmCode(code_t *data, const char *label)
 }
 
 
-int assemble(code_t *data)
+int compile(code_t *data)
 {
     assert(data);
     assert(data->tokens);
@@ -158,6 +199,16 @@ int assemble(code_t *data)
               data->buffer &&
               data->binaryCode);
 
+/*!
+* @warning Do not rename these variables:
+ * @ref codeCounter
+ * @ref integerTemp
+ * @ref doubleTemp
+ * @ref tokens
+ * @ref _labels
+ * @ref tokensNumber
+ * They are very important for code generation.
+*/
     int codeCounter = 0;
     int integerTemp = 0;
     double doubleTemp = 0;
@@ -301,6 +352,7 @@ size_t countTokens(const char *buffer)
 
     return tokensCounter;
 }
+
 
 int throw_error(unsigned int err_num, const char *usr_msg, const char *err_msg, const char *_func, int _line,
                 const char *_file)
