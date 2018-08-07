@@ -53,7 +53,7 @@
 
 
 static const char defaultInput[] = "asmCode.txt";
-static const char defaultOutput[] = "machCode.txt";
+static const char defaultOutput[] = "factorialCore.txt";
 static const char labelSymbol[] = ":";
 
 static const char *const errList[] = {"",

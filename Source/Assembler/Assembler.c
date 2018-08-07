@@ -224,7 +224,7 @@ int compile(code_t *data)
 
 
 #define  DEF_CMD(name, num, codeAsm, codeCpu)           \
-    if (strcmp (tokens[codeCounter], #name) == 0) \
+    if (strcmp (tokens[codeCounter], #name) == 0)       \
     {                                                   \
         codeAsm;                                        \
     }

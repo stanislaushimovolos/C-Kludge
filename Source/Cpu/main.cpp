@@ -1,6 +1,12 @@
-//
-// Created by superstraz on 8/6/18.
-//
+/*!
+ * @file main.c
+ * @brief Main program module.
+ * @author Stanislau Shimovolos
+ * @version 3.1
+ * @date 2018-8-7
+ */
+
+
 #include <iostream>
 #include "cpu.h"
 
@@ -12,6 +18,7 @@ int main(int argc, char *argv[])
     {
         cpu megaXEON(RAM_SIZE, REGISTERS_AMOUNT);
 
+        // if source file is not opened => status = err_num
         int status = 0;
         if (argc > 1)
             status = megaXEON.loadData(argv[1]);
@@ -27,7 +34,6 @@ int main(int argc, char *argv[])
     {
         std::cerr << e.what();
     }
-
     return 0;
 }
 

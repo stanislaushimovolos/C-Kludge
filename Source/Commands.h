@@ -1,8 +1,10 @@
-//
-// Created by Tom on 22.10.2017.
-//
-
-#include <stdexcept>
+/*!
+ * @file Commands.h
+ * @brief Used for code generation.
+ * @author Stanislau Shimovolos
+ * @version 3.1
+ * @date 2018-8-7
+ */
 
 enum {
 	CMD_push = 1,
@@ -31,8 +33,6 @@ enum {
 	CMD_jne,
 	CMD_jb,
 	CMD_jl,
-    CMD_jle,
-    CMD_jbe,
 	CMD_ret,
 	CMD_in,
 	CMD_ERR,
@@ -314,11 +314,8 @@ DEF_CMD_JMP_INSTR(jne, value1 != value2)
 
 DEF_CMD_JMP_INSTR(jb, value1 < value2)
 
-DEF_CMD_JMP_INSTR(jbe, value1 <= value2)
-
 DEF_CMD_JMP_INSTR(jl, value1 > value2)
 
-DEF_CMD_JMP_INSTR(jle, value1 >= value2)
 
 #undef push
 

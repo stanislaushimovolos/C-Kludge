@@ -4,6 +4,9 @@ push 0
 push cx
 
 jb 6
+push 0
+push cx
+
 je 4
 
 pop
