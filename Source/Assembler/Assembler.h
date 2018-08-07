@@ -52,8 +52,8 @@
 #define INIT_LABEL_NUMBER 32
 
 
-static const char defaultInput[] = "../../Example/asmCode.txt";
-static const char defaultOutput[] = "../../Example/machCode.txt";
+static const char defaultInput[] = "asmCode.txt";
+static const char defaultOutput[] = "machCode.txt";
 static const char labelSymbol[] = ":";
 
 static const char *const errList[] = {"",

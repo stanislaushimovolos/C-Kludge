@@ -52,6 +52,8 @@ out
     push 0
 
     jl 3
+    push dx
+    push 0
     je 4
 
     pop

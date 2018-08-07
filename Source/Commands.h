@@ -2,6 +2,8 @@
 // Created by Tom on 22.10.2017.
 //
 
+#include <stdexcept>
+
 enum {
 	CMD_push = 1,
 	CMD_pushReg,
@@ -29,6 +31,8 @@ enum {
 	CMD_jne,
 	CMD_jb,
 	CMD_jl,
+    CMD_jle,
+    CMD_jbe,
 	CMD_ret,
 	CMD_in,
 	CMD_ERR,
@@ -69,17 +73,15 @@ tokens[codeCounter + 1] != NULL                                                 
 #define LABEL_CONDITION tokens[codeCounter + 1] != NULL                                               	\
 									&& codeCounter  < tokensNumber - 1                                  \
 									&& sscanf(tokens[codeCounter + 1], "%d", &integerTemp )!= 0	    	\
-									&& _labels[integerTemp] != 0                                   \
+									&& _labels[integerTemp] != 0                                        \
 
 
 
-/*#define NEXT_CMD (CPU->commands)[++counter]
-#define THIS_CMD (CPU->commands)[counter]
+#define NEXT_CMD _commands[++counter]
+#define THIS_CMD _commands[counter]
 
-#define push stack.push
-#define pop stack.pop
-
-#define stack (*(CPU->values))*/
+#define push(val) values.push(val)
+#define pop(val)  values.pop (val)
 
 
 
@@ -92,31 +94,9 @@ DEF_CMD (push, CMD_pushReg, {
 
 	}
 	}, {
-	switch ((int)((CPU->commands)[++counter])){
-		case 1:{
-			push(CPU->ax);
-			break;
-		}
-
-		case 2:{
-			push(CPU->bx);
-			break;
-		}
-
-		case 3:{
-			push(CPU->cx);
-			break;
-		}
-		case 4:{
-			push(CPU->dx);
-			break;
-		}
-
-		default:
-			exit(EXIT_FAILURE);
-		}
+	push ((_registers[(int)_commands[++counter]]));
 	counter++;
-	continue;
+	break;
 })
 
 
@@ -130,16 +110,15 @@ DEF_CMD (push, CMD_pushRam, {
 		}
 	}, {
 
-	if ((int)((CPU->commands)[1 + counter]) < RAM_SIZE){
-		push((CPU->ram)[(int)((CPU->commands)[++counter])]);
+	if ((int)(_commands[counter + 1]) < _ramSize)
+	{
+		push(_ram[(int)(_commands[++counter])]);
 		counter++;
-		continue;
+		break;
 	}
-	else{
-		printf("nonexistent elem of RAM");
-		exit(EXIT_FAILURE);
-	}
-
+	else
+        throw std::runtime_error (std::string("Error, nonexistent element of RAM: ") +
+                                std::string(std::to_string(_commands[1 + counter])));
 })
 
 DEF_CMD (push, CMD_push, {
@@ -151,7 +130,8 @@ DEF_CMD (push, CMD_push, {
 		continue;
 		}},
 		{
-			push (NEXT_CMD); counter++; continue;
+			push (NEXT_CMD); counter++;
+			break;
 		})
 
 DEF_CMD (push, CMD_ERR, {
@@ -170,33 +150,9 @@ DEF_CMD (pop, CMD_popReg, {
 	}
 	}, {
 
-/*	pop (registers [(int)((CPU->commands)[++counter])]); */
-
-	switch ((int)((CPU->commands)[++counter])){
-		case 1:{
-			pop(CPU->ax);
-			break;
-		}
-
-		case 2:{
-			pop(CPU->bx);
-			break;
-		}
-
-		case 3:{
-			pop(CPU->cx);
-			break;
-		}
-		case 4:{
-			pop(CPU->dx);
-			break;
-		}
-
-		default:
-			exit(EXIT_FAILURE);
-		}
+        pop(&(_registers[_commands[++counter]]));
 		counter++;
-		continue;
+		break;
 })
 
 DEF_CMD (pop, CMD_popRam, {
@@ -208,15 +164,14 @@ DEF_CMD (pop, CMD_popRam, {
 	}
 	}, {
 
-	if ((int)((CPU->commands)[1 + counter]) < RAM_SIZE){
-		pop((CPU->ram)[(int)((CPU->commands)[++counter])]);
+	if ((int)(_commands[1 + counter]) < _ramSize){
+		pop(&(_ram[(int)(_commands[++counter])]));
 		counter++;
-		continue;
+		break;
 	}
-	else{
-		printf("nonexistent elem of RAM");
-		exit(EXIT_FAILURE);
-		}
+	else
+		throw std::runtime_error (std::string("Error, nonexistent element of RAM: ") +
+                            std::string(std::to_string(_commands[1 + counter])));
 	})
 
 DEF_CMD (pop, CMD_pop, {
@@ -225,7 +180,12 @@ DEF_CMD (pop, CMD_pop, {
 		integerTemp = 0;
 		continue;
 	}
-	}, {pop(); counter++; continue;})
+	}, {
+
+	pop();
+	counter++;
+	break;
+})
 
 
 
@@ -244,16 +204,13 @@ DEF_CMD (name, CMD_name, SMPL_INSTR(name),  {                                   
 	double value1 = 0;                                                                                      \
 	double value2 = 0;                                                                                      \
 																											\
-	pop(value1);                                                                                            \
-	pop(value2);                                                                                            \
-																											\
-																											\
+	pop(&value1);                                                                                           \
+	pop(&value2);                                                                                           \
 	operation;                                                                                              \
-																											\
 	counter++;                                                                                              \
-	continue;                                                                                               \
-	}                                                                                                       \
-	)
+	break;                                                                                                  \
+})
+
 
 DEF_CMD_ARITH (add, CMD_add, push(value1 + value2) )
 
@@ -267,40 +224,37 @@ DEF_CMD (out, CMD_out, SMPL_INSTR(out),  {
 
 	double value = 0;
 
-	pop (value);
+	pop (&value);
 	printf("%lg\n", value);
-
 	counter++;
-	continue;
-}
-)
+	break;
+})
+
 
 DEF_CMD (in, CMD_in, SMPL_INSTR(in),  {
 
 	double value = 0;
 
 	std::cin >> value;
-
 	push(value);
 
 	counter++;
-	continue;
+	break;
 })
 
 DEF_CMD (sqrt, CMD_sqrt, SMPL_INSTR(sqrt),  {
 
 	double value = 0;
 
-	pop(value);
-
+	pop(&value);
 	push(sqrt(value));
 
 	counter++;
-	continue;
+	break;
 })
 
 
-#define JMP_CODE counter = CPU->commands[counter + 1] - 1;
+#define JMP_CODE counter = _commands[counter + 1] - 1;
 
 DEF_CMD (jmp, CMD_jmp,{
 	if (LABEL_CONDITION)
@@ -318,9 +272,9 @@ DEF_CMD (jmp, CMD_jmp,{
 },
 {
 	JMP_CODE;
-	continue;
-}
-)
+	break;
+})
+
 
 #define DEF_CMD_JMP_INSTR(name, condition)                                                                  \
 DEF_CMD (name, CMD_##name, {                                                                                \
@@ -343,33 +297,33 @@ DEF_CMD (name, CMD_##name, {                                                    
 	double value1 = 0;                                                                                      \
 	double value2 = 0;                                                                                      \
 																											\
-	pop(value1);                                                                                            \
-	pop(value2);                                                                                            \
+	pop(&value1);                                                                                           \
+	pop(&value2);                                                                                           \
 																											\
 	if (condition) {                                                                                        \
 		JMP_CODE;                                                                                           \
-		push(value2);                                                                                       \
-		push(value1);                                                                                       \
 		continue;                                                                                           \
 	}                                                                                                       \
 	counter += 2;                                                                                           \
-	push(value2);                                                                                           \
-	push(value1);                                                                                           \
-	continue;                                                                                               \
-}                                                                                                           \
-)
+	break;                                                                                               	\
+})
 
-DEF_CMD_JMP_INSTR(je, value1 == value2 )
+DEF_CMD_JMP_INSTR(je, value1 == value2)
 
-DEF_CMD_JMP_INSTR(jne, value1 != value2 )
+DEF_CMD_JMP_INSTR(jne, value1 != value2)
 
-DEF_CMD_JMP_INSTR(jb, value1 < value2 )
+DEF_CMD_JMP_INSTR(jb, value1 < value2)
 
-DEF_CMD_JMP_INSTR(jl, value1 > value2 )
+DEF_CMD_JMP_INSTR(jbe, value1 <= value2)
+
+DEF_CMD_JMP_INSTR(jl, value1 > value2)
+
+DEF_CMD_JMP_INSTR(jle, value1 >= value2)
 
 #undef push
 
 #undef pop
+
 
 DEF_CMD (call, CMD_call, {
 if (LABEL_CONDITION)
@@ -386,25 +340,22 @@ else{
 	continue;
 }
 }, {
-	(*(CPU->refunds)).push(counter + 2 );
+	_returns.push(counter + 2);
 	JMP_CODE;
-	continue;
-}
-)
+	break;
+})
 
 DEF_CMD (ret, CMD_ret, SMPL_INSTR(ret), {
 	int value = 0;
 
-	(*(CPU->refunds)).pop(value);
+	_returns.pop(&value);
 	counter = value ;
-	continue;
-}
-)
+	break;
+})
 
 DEF_CMD (end, CMD_end, SMPL_INSTR(end), {
-	exit(EXIT_SUCCESS);
-}
-)
+	return 0;
+})
 
 
 #undef DEF_CMD_JMP_INSTR
@@ -412,8 +363,6 @@ DEF_CMD (end, CMD_end, SMPL_INSTR(end), {
 #undef NEXT_CMD
 
 #undef THIS_CMD
-
-#undef stack
 
 #undef ASSIGN_REG
 

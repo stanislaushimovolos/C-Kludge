@@ -13,8 +13,6 @@ pop ax
 push cx
 pop bx
 
-call 3
-
 : 3
     push ax
     push 1

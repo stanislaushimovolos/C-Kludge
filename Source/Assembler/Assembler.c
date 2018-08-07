@@ -65,8 +65,8 @@ int assemble(code_t *data, int argc, const char *argv[])
         execute(getBuf(data, defaultInput));
     argc--;
 
-    processAsmCode(data, labelSymbol);
-    compile(data);
+    execute(processAsmCode(data, labelSymbol));
+    execute(compile(data));
 
     if (argc > 0)
         execute(writeCode(data, argv[2]));
@@ -268,8 +268,6 @@ int writeCode(code_t *data, const char *outFilename)
 
     assert(outFile);
     FILE_CHECK(outFile, outFilename);
-
-    fprintf(outFile, "%s\n%s %s\n", SIGNATURE, ASM_NAME, ASM_VERSION);
 
     int codeSz = data->tokensNumber;
     double *_binaryCode = data->binaryCode;
