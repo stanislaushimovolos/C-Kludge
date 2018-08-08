@@ -58,7 +58,7 @@ public:
      @brief Execute current program in @ref  _commands.
      @return Error code.
      */
-    int execute();
+    int execute(std::string &&filename);
 
     /*!
     @brief Loads data from a "binary file" .
@@ -102,12 +102,17 @@ catch (std::exception &e)
             {                                           \
                 codeCpu;                                \
             }
-int cpu::execute()
+
+int cpu::execute(std::string &&filename)
 {
+    //Upload binary into processor's memory
+    auto status = loadData(std::move(filename));
+    if (status)
+        return status;
+
     /*!
     @warning Do not rename @ref counter (Instruction pointer at @ref commands.h).
     */
-
     int counter = 0;
 
     while (counter < _sizeOfCode)
