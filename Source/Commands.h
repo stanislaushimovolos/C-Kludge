@@ -10,24 +10,16 @@ enum {
 	CMD_push = 1,
 	CMD_pushReg,
 	CMD_pushRam,
+	CMD_pushRamReg,
 	CMD_pop,
 	CMD_popReg,
 	CMD_popRam,
+	CMD_popRamReg,
 	CMD_add,
-	CMD_addReg,
-	CMD_addRam,
 	CMD_sub,
-	CMD_subReg,
-	CMD_subRam,
 	CMD_mul,
-	CMD_mulReg,
-	CMD_mulRam,
 	CMD_div,
-	CMD_divReg,
-	CMD_divRam,
 	CMD_out,
-	CMD_outReg,
-	CMD_outRam,
 	CMD_jmp,
 	CMD_je,
 	CMD_jne,
@@ -49,18 +41,24 @@ enum {
 
 
 
-#define REG_CONDITION \
-	tokens[codeCounter + 1] != NULL && tokens[codeCounter + 1][1] == 'x' &&                                                                                 \
-				strchr ("abcd", (tokens[codeCounter + 1])[0]) &&                                      	\
+#define REG_CONDITION 	(tokens[codeCounter + 1] != NULL 												\
+				&& tokens[codeCounter + 1][1] == 'x'   													\
+				&&  strchr ("abcd", (tokens[codeCounter + 1])[0]) &&                                  	\
 				codeCounter  < tokensNumber - 1 &&                                                    	\
-				(tokens[codeCounter + 1])[2] == 0
+				tokens[codeCounter + 1][2] == 0)
 
 
 
 #define RAM_CONDITION                                                                                 	\
 tokens[codeCounter + 1] != NULL                                                                       	\
 									&& codeCounter  < tokensNumber - 1                                	\
-									&& sscanf(tokens[codeCounter + 1], "[%d]", &integerTemp )!= 0  		\
+									&& sscanf(tokens[codeCounter + 1], "[%d]", &integerTemp)!= 0  		\
+
+
+#define RAM_REG_CONDITION                                                                                 	\
+tokens[codeCounter + 1] != NULL                                                                       	\
+									&& codeCounter  < tokensNumber - 1                                	\
+									&& sscanf(tokens[codeCounter + 1], "[%c]", &integerTemp)!= 0  		\
 
 
 
@@ -121,6 +119,21 @@ DEF_CMD (push, CMD_pushRam, {
                                 std::string(std::to_string(_commands[1 + counter])));
 })
 
+
+DEF_CMD (push, CMD_pushRamReg, {
+	if (RAM_REG_CONDITION)
+	{
+	NEXT_ELEM_CODE = CMD_pushRamReg;
+	NEXT_ELEM_CODE = strchr ("abcd", (tokens[codeCounter - 1 ])[1]) - "abcd" + 1;
+	continue;
+
+	}
+	}, {
+	push (_ram[_registers[(int)_commands[++counter]]]);
+	counter++;
+	break;})
+
+
 DEF_CMD (push, CMD_push, {
 	 if (VALUE_CONDITION)
 		{
@@ -141,6 +154,7 @@ DEF_CMD (push, CMD_ERR, {
 
 	}, {})
 
+
 DEF_CMD (pop, CMD_popReg, {
 	if(REG_CONDITION)
 	{
@@ -154,6 +168,7 @@ DEF_CMD (pop, CMD_popReg, {
 		counter++;
 		break;
 })
+
 
 DEF_CMD (pop, CMD_popRam, {
 	if(RAM_CONDITION){
@@ -173,6 +188,21 @@ DEF_CMD (pop, CMD_popRam, {
 		throw std::runtime_error (std::string("Error, nonexistent element of RAM: ") +
                             std::string(std::to_string(_commands[1 + counter])));
 	})
+
+
+DEF_CMD (pop, CMD_popRamReg, {
+if (RAM_REG_CONDITION)
+	{
+	NEXT_ELEM_CODE = CMD_popRamReg;
+	NEXT_ELEM_CODE = strchr ("abcd", (tokens[codeCounter - 1 ])[1]) - "abcd" + 1;
+	continue;
+
+	}
+	}, {
+	pop (&(_ram[(int)_registers[(int)_commands[++counter]]]));
+	counter++;
+	break;})
+
 
 DEF_CMD (pop, CMD_pop, {
 	if(1){

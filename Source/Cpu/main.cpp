@@ -14,7 +14,7 @@ int main(int argc, char *argv[])
 {
     try
     {
-        cpu megaXEON(RAM_SIZE, REGISTERS_AMOUNT);
+        cpu megaXEON(XEON_RAM_SIZE, XEON_REGISTERS_AMOUNT);
 
         if (argc > 1)
             megaXEON.execute(argv[1]);

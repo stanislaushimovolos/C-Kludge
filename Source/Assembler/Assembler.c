@@ -95,7 +95,7 @@ int getBuf(code_t *data, const char *inputFile)
     l_buf_sz = (size_t) ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    data->buffer = (char *) calloc(l_buf_sz + 1, sizeof(char));
+    data->buffer = (char *) calloc(l_buf_sz + 2, sizeof(char));
 
     assert(data->buffer);
     ALLOC_CHECK(data->buffer, "Buffer");
@@ -116,7 +116,7 @@ int processAsmCode(code_t *data, const char *label)
 
     size_t _tokensNumber = countTokens(data->buffer);
 
-    unsigned int *_labels = (unsigned int *) calloc(INIT_LABEL_NUMBER, sizeof(int));
+    size_t *_labels = (size_t *) calloc(INIT_LABEL_NUMBER, sizeof(size_t));
     char **_tokensArr = (char **) calloc(_tokensNumber + 1, sizeof(char *));
     data->binaryCode = (double *) calloc(_tokensNumber + 1, sizeof(char *));
 
@@ -129,8 +129,10 @@ int processAsmCode(code_t *data, const char *label)
     ALLOC_CHECK(_tokensArr, "Tokens");
 
     unsigned int _labelNumber = INIT_LABEL_NUMBER;
-    unsigned int tokCounter = 0;
+    size_t tokCounter = 0;
     size_t curLabel = 0;
+
+    int sizeOfLabel = 0;
 
     char *curToken = strtok(data->buffer, "\n\t ");
 
@@ -144,9 +146,9 @@ int processAsmCode(code_t *data, const char *label)
             if (!curToken)
                 throw(LABEL_EOF, "Error, expected a number after the label symbol.", "");
 
-            curLabel = strtoul(curToken, NULL, 10);
+            sscanf(curToken, "%d%n", &curLabel, &sizeOfLabel);
 
-            if (!curLabel)
+            if (!sizeOfLabel)
                 throw (LABEL_VAL_ERR, "Error, expected a number after the label symbol.", "")
 
             curToken = strtok(NULL, "\n\t ");
@@ -154,7 +156,7 @@ int processAsmCode(code_t *data, const char *label)
             if (curLabel >= _labelNumber)
             {
                 _labelNumber *= 2;
-                _labels = (unsigned int *) realloc(_labels, _labelNumber * sizeof(int));
+                _labels = (size_t *) realloc(_labels, _labelNumber * sizeof(size_t));
 
                 assert(_labels);
                 ALLOC_CHECK(_labels, "Labels reallocation");
@@ -214,8 +216,8 @@ int compile(code_t *data)
     double doubleTemp = 0;
 
     char **tokens = data->tokens;
-    unsigned int *_labels = data->labels;
-    unsigned int tokensNumber = data->tokensNumber;
+    size_t *_labels = data->labels;
+    size_t tokensNumber = data->tokensNumber;
 
     while (tokens[codeCounter])
     {
@@ -231,7 +233,7 @@ int compile(code_t *data)
 
 #include "../Commands.h"
 
-        printf("Operand %s", tokens[codeCounter]);
+        printf("Operand %s\n", tokens[codeCounter]);
         throw(UNKNOWN_OPERAND, "Operand is unknown", "");
     }
 
@@ -245,13 +247,13 @@ void destructCode_t(code_t *data)
 {
     if (data)
     {
-        if (data->buffer)
-            free(data->buffer);
-        if (data->labels)
-            free(data->labels);
-        if (data->binaryCode)
-            free(data->binaryCode);
 
+        free(data->buffer);
+        free(data->labels);
+        free(data->binaryCode);
+        free(data->tokens);
+
+        data->tokens = NULL;
         data->binaryCode = NULL;
         data->labels = NULL;
         data->buffer = NULL;
@@ -269,7 +271,7 @@ int writeCode(code_t *data, const char *outFilename)
     assert(outFile);
     FILE_CHECK(outFile, outFilename);
 
-    int codeSz = data->tokensNumber;
+    size_t codeSz = data->tokensNumber;
     double *_binaryCode = data->binaryCode;
 
     for (int i = 0; i < codeSz; i++)
@@ -287,7 +289,7 @@ int displayTokens(code_t *data)
     ARG_CHECK(data && data->tokens);
 
     char **_tokens = data->tokens;
-    int _tokensNum = data->tokensNumber;
+    size_t _tokensNum = data->tokensNumber;
 
     for (int i = 0; i < _tokensNum; i++)
         printf("%s\n", _tokens[i]);
@@ -307,15 +309,15 @@ int dumpCode_t(code_t *data)
 
     if (data->labels)
     {
-        int _labelNumber = data->labelsNumber;
+        size_t _labelNumber = data->labelsNumber;
         printf("Labels:\n");
 
         for (int i = 0; i < _labelNumber; i++)
-            printf("№%d Lvalue = %d\n", i, data->labels[i]);
+            printf("№%d Lvalue = %lu\n", i, data->labels[i]);
     }
 
-    printf("Number of tokens: %d\n"
-           "Number of labels: %d\n",
+    printf("Number of tokens: %lu\n"
+           "Number of labels: %lu\n",
            data->tokensNumber,
            data->labelsNumber);
 

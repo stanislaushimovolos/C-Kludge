@@ -13,8 +13,8 @@
 #define COMMANDS_INIT_AMOUNT 50
 #define RETURNS_INIT_AMOUNT 25
 
-#define REGISTERS_AMOUNT 4
-#define RAM_SIZE 256
+#define XEON_REGISTERS_AMOUNT 4
+#define XEON_RAM_SIZE 256
 
 #include "stack.h"
 #include <fstream>
@@ -99,7 +99,8 @@ catch (std::exception &e)
  */
 #define  DEF_CMD(name, num, codeAsm, codeCpu)           \
             case num:                                   \
-            {                                           \
+                                                        \
+            {                                            \
                 codeCpu;                                \
             }
 

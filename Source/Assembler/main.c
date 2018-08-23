@@ -11,8 +11,8 @@
 int main(int argc, const char *argv[])
 {
     code_t code = {};
-    int err_num = assemble(&code, argc, argv);
+    int status = assemble(&code, argc, argv);
 
     destructCode_t(&code);
-    return err_num;
+    return status;
 }

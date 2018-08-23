@@ -49,10 +49,10 @@
 * Initial size of label's array.
 */
 
-#define INIT_LABEL_NUMBER 32
+#define INIT_LABEL_NUMBER 128
 
 
-static const char defaultInput[] = "asmCode.txt";
+static const char defaultInput[] = "../../../LanguageRef/AsmDump/asmCode.txt";
 static const char defaultOutput[] = "factorialCore.txt";
 static const char labelSymbol[] = ":";
 
@@ -100,9 +100,9 @@ typedef struct
     char *buffer;               //!<buffer with input data
     char **tokens;              //!<array of tokens to which source data was splitted
 
-    unsigned int *labels;       //!<array of assembly labels (each of them keeps information about its position in tokens)
-    unsigned int tokensNumber;  //!<size of @ref tokens array
-    unsigned int labelsNumber;  //!<size of @ref labels array
+    size_t *labels;       //!<array of assembly labels (each of them keeps information about its position in tokens)
+    size_t tokensNumber;  //!<size of @ref tokens array
+    size_t labelsNumber;  //!<size of @ref labels array
 
     double *binaryCode;         //!<keeps opcodes of stack machine (for more information look \ref Commands.h)
     size_t size;                //!<size of @ref buffer
