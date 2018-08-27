@@ -25,6 +25,8 @@ enum {
 	CMD_jne,
 	CMD_jb,
 	CMD_jl,
+	CMD_jle,
+	CMD_jbe,
 	CMD_ret,
 	CMD_in,
 	CMD_ERR,
@@ -199,7 +201,11 @@ if (RAM_REG_CONDITION)
 
 	}
 	}, {
-	pop (&(_ram[(int)_registers[(int)_commands[++counter]]]));
+	if ((int)_registers[(int)_commands[counter + 1]] <= _ramSize)
+		pop (&(_ram[(int)_registers[(int)_commands[++counter]]]));
+	else
+		throw std::runtime_error (std::string("Error, nonexistent element of RAM: ") +
+			std::to_string(_ram[(int)_registers[(int)_commands[1 + counter]]]));
 	counter++;
 	break;})
 
@@ -344,7 +350,11 @@ DEF_CMD_JMP_INSTR(jne, value1 != value2)
 
 DEF_CMD_JMP_INSTR(jb, value1 < value2)
 
+DEF_CMD_JMP_INSTR(jbe, value1 <= value2)
+
 DEF_CMD_JMP_INSTR(jl, value1 > value2)
+
+DEF_CMD_JMP_INSTR(jle, value1 >= value2)
 
 
 #undef push

@@ -53,7 +53,7 @@
 
 
 static const char defaultInput[] = "../../../LanguageRef/AsmDump/asmCode.txt";
-static const char defaultOutput[] = "factorialCore.txt";
+static const char defaultOutput[] = "asm.out";
 static const char labelSymbol[] = ":";
 
 static const char *const errList[] = {"",

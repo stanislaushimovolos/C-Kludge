@@ -1,0 +1,27 @@
+
+def fact (n);
+
+def main ( mul){
+    read (mul);
+    write (fact (mul));
+}
+
+def fact (n){
+  if (n > 0)
+  {
+    if (n == 1)
+    {
+      return 1;
+    }
+    else
+      return fact(n - 1)*n;
+  }
+  else if (n == 0)
+  {
+     return 1;
+  }
+  else
+    return 666;
+};
+
+

@@ -54,6 +54,8 @@ private:
 
 public:
 
+    size_t getRam();
+
     /*!
      @brief Execute current program in @ref  _commands.
      @return Error code.
@@ -171,6 +173,11 @@ int cpu::loadData(std::string &&filename)
     _sizeOfCode = _commands.getSize();
 
     return 0;
+}
+
+size_t cpu::getRam()
+{
+    return _ramSize;
 }
 
 #endif
